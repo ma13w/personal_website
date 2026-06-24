@@ -31,32 +31,6 @@ Portfolio in PHP with a contact form, SQLite storage for submissions, and PHPMai
 
 4. Make sure `data/` is writable so the contact form can create `data/contacts.db`.
 
-5. Run the site with your preferred PHP web server or the provided Docker setup.
-
-## Publishing to GitHub
-
-Use the publish script for the initial push and for future updates:
-
-```bash
-./publish.sh "Initial public release" git@github.com:USER/REPO.git
-```
-
-After the first push, the same script can be reused without the remote URL:
-
-```bash
-./publish.sh "Update portfolio content"
-```
-
-The script initializes Git if needed, removes excluded paths from the index, commits the current changes, and pushes to `origin` when a remote is configured.
-
-## Excluded from Git
-
-- `vendor/`
-- `assets/`
-- `data/contacts.db`
-- `.env`
-- local environment files
-
 ## License
 
 See [LICENSE](LICENSE).
