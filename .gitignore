@@ -1,0 +1,31 @@
+# Dependencies
+/vendor/
+
+# Public assets are intentionally kept out of Git
+/assets/
+
+# Local config and runtime data
+/config.php
+/config.local.php
+/data/projects.json
+/data/TODO
+/data/contacts.db
+/data/*.db
+/data/*.sqlite
+/data/*.sqlite3
+/.env
+/.env.*
+/googleb6f92a3b917bfd85.html
+/publish.sh
+
+# Legacy or local-only deployment files
+/olddocker.yaml
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

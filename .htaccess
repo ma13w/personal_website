@@ -1,0 +1,99 @@
+# ============================================
+#  ENGINE & OPTIONS
+# ============================================
+Options -Indexes -MultiViews
+
+# ============================================
+#  BLOCK DIRECT ACCESS TO SENSITIVE DIRS/FILES
+# ============================================
+
+# (access to sensitive files and non-whitelisted PHP is handled below by RewriteRules)
+
+# Whitelist: explicitly allow public PHP pages
+<FilesMatch "^(index|projects|project|contact|sitemap)\.php$">
+    Require all granted
+</FilesMatch>
+
+# ============================================
+#  STATIC ASSETS - explicitly allow /assets/
+# ============================================
+# Assets are public; no restriction needed - handled by FilesMatch above (only .php is restricted)
+
+# ============================================
+#  BLOCK BAD QUERY STRINGS / PATH TRAVERSAL
+# ============================================
+RewriteEngine On
+
+# Block path traversal attempts
+RewriteCond %{QUERY_STRING} (\.\./|\.\.\\) [NC]
+RewriteRule ^ - [F,L]
+
+# Block null bytes
+RewriteCond %{QUERY_STRING} \0 [NC]
+RewriteRule ^ - [F,L]
+
+# Block common injection patterns
+RewriteCond %{QUERY_STRING} (<|>|'|%27|%3C|%3E|%00) [NC]
+RewriteRule ^ - [F,L]
+
+# Block /project.php with no slug (bare URL)
+RewriteCond %{REQUEST_URI} ^/project\.php$
+RewriteCond %{QUERY_STRING} !slug=
+RewriteRule ^ / [R=302,L]
+
+# ---- REDIRECT RULES (run before access control) ----
+
+# Redirect sensitive directories to homepage
+RewriteRule ^(components|data|composer|vendor|phpmailer)(/.*)? / [R=302,L]
+
+# Redirect sensitive non-PHP files to homepage
+RewriteRule ^(autoload\.php|run\.sh|Dockerfile|composer\.json|composer\.lock)$ / [R=302,L]
+
+# Redirect dotfiles and .htaccess to homepage
+RewriteRule ^\. / [R=302,L]
+
+# Block sensitive directories - HARD deny, not redirect
+RewriteRule ^(components|data|composer|vendor|phpmailer)(/.*)? - [F,L]
+
+# Block sensitive files - HARD deny
+RewriteRule ^(autoload\.php|run\.sh|Dockerfile|composer\.json|composer\.lock|config\.php|config\.example\.php)$ - [F,L]
+
+# Block dotfiles
+RewriteRule ^\. - [F,L]
+
+# Allow whitelisted PHP pages through — stop rewriting
+RewriteRule ^(index|projects|project|contact|sitemap)\.php$ - [L]
+
+# Redirect any other existing PHP file (e.g. config.php) to homepage
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule \.php$ / [R=302,L]
+
+# Redirect non-existent paths to homepage
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ / [R=302,L]
+
+# NOTE: HTTPS is handled by Cloudflare/Caddy reverse proxy.
+# Do NOT add an HTTPS redirect here — Apache always sees HTTP internally,
+# which would cause an infinite redirect loop.
+
+# ============================================
+#  SECURITY HEADERS
+# ============================================
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always unset X-Powered-By
+    Header always unset Server
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+</IfModule>
+
+# ============================================
+#  CUSTOM ERROR PAGES (optional)
+# ============================================
+# Fallback for any remaining 403/404 not caught by RewriteRules above
+ErrorDocument 403 /
+ErrorDocument 404 /

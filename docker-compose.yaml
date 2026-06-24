@@ -1,0 +1,24 @@
+services:
+  httpd:
+    build:
+      context: .        
+    container_name: portfoliohttpd
+    restart: unless-stopped
+    ports:
+      - "40040:80"
+    volumes:
+      - /mnt/datas/newportfolio:/var/www/html
+    environment:
+      TZ: ${TZ:-Europe/Rome}
+      SMTP_HOST: ${SMTP_HOST:-smtp.mail.ovh.net}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Portfolio}
+      SMTP_TO_EMAIL: ${SMTP_TO_EMAIL:-}
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    security_opt:
+      - apparmor:unconfined

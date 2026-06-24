@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Block private/internal files
+Disallow: /components/
+Disallow: /data/
+Disallow: /composer/
+Disallow: /vendor/
+Disallow: /phpmailer/
+Disallow: /config.php
+Disallow: /autoload.php
+Disallow: /run.sh
+Disallow: /Dockerfile
+Disallow: /composer.json
+
+# Sitemap location
+Sitemap: https://calimatteo.it/sitemap.php
